@@ -13,11 +13,11 @@ public class StoreManager {
         System.out.println("3. Delete Product");
         System.out.print("Enter your choice: ");
         int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
 
         switch (choice) {
             case 1:
-                addProduct(scanner);
+                addProduct();
                 break;
             case 2:
                 updateProduct(scanner);
@@ -119,27 +119,68 @@ public class StoreManager {
         }
     }
 
-    private void addProduct(Scanner scanner) {
+    private void addProduct() {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.print("Enter Product ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        String productId = scanner.nextLine();
+
         System.out.print("Enter Product Name: ");
-        String name = scanner.nextLine();
+        String productName = scanner.nextLine();
+
         System.out.print("Enter Product Price: ");
         double price = scanner.nextDouble();
-        System.out.print("Enter Product Quantity: ");
-        int quantity = scanner.nextInt();
-        System.out.print("Enter Low Stock Threshold: ");
-        int lowStock = scanner.nextInt();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(productsFile, true))) {
-            writer.write(id + "|" + name + "|" + price + "|" + quantity + "|" + lowStock);
-            writer.newLine();
-            System.out.println("Product added successfully.");
+        System.out.print("Enter Product Quantity: ");
+        int quantityToAdd = scanner.nextInt();
+
+        System.out.print("Enter Low Stock Threshold: ");
+        int lowStockThreshold = scanner.nextInt();
+        scanner.nextLine();
+
+        List<String> productList = new ArrayList<>();
+        boolean productExists = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(productsFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] productData = line.split("\\|");
+                if (productData[0].equals(productId)) {
+                    productExists = true;
+                    int currentQuantity = Integer.parseInt(productData[3]);
+                    int newQuantity = currentQuantity + quantityToAdd;
+
+                    String updatedProduct = productId + "|" + productData[1] + "|" + productData[2] + "|" + newQuantity + "|" + productData[4];
+                    productList.add(updatedProduct);
+
+                    System.out.println("Product already exists. Quantity updated!");
+                    System.out.println("Product: " + productData[1]);
+                    System.out.println("Quantity: " + newQuantity);
+                } else {
+                    productList.add(line);
+                }
+            }
         } catch (IOException e) {
-            System.out.println("Error adding product.");
+            System.out.println("Error reading products file: " + e.getMessage());
+            return;
+        }
+
+        if (!productExists) {
+            String newProduct = productId + "|" + productName + "|" + price + "|" + quantityToAdd + "|" + lowStockThreshold;
+            productList.add(newProduct);
+            System.out.println("New product added successfully!");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(productsFile))) {
+            for (String product : productList) {
+                writer.write(product);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing to products file: " + e.getMessage());
         }
     }
+
 
     private void updateProduct(Scanner scanner) {
         System.out.print("Enter Product ID to update: ");
@@ -162,7 +203,7 @@ public class StoreManager {
                     int quantity = scanner.nextInt();
                     System.out.print("Enter new low-stock threshold (current: " + productData[4] + "): ");
                     int threshold = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
+                    scanner.nextLine();
 
                     String updatedProduct = productId + "|" + name + "|" + price + "|" + quantity + "|" + threshold;
                     productList.add(updatedProduct);
