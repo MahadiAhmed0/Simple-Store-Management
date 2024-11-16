@@ -231,5 +231,65 @@ public class StoreManager {
 
         System.out.println("Product deleted successfully!");
     }
+    void showProducts() {
+        System.out.println("=== Product List ===");
+        try (BufferedReader reader = new BufferedReader(new FileReader(productsFile))) {
+            String line;
+            System.out.printf("%-5s %-15s %-10s %-10s %-10s%n", "ID", "Name", "Price", "Quantity", "LowStock");
+            System.out.println("----------------------------------------------------");
+            while ((line = reader.readLine()) != null) {
+                String[] productData = line.split("\\|");
+                System.out.printf("%-5s %-15s %-10s %-10s %-10s%n",
+                        productData[0], productData[1], productData[2], productData[3], productData[4]);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading products file: " + e.getMessage());
+        }
+    }
+    void showSales() {
+        System.out.println("=== Sales History ===");
+        try (BufferedReader reader = new BufferedReader(new FileReader(salesFile))) {
+            String line;
+            System.out.printf("%-12s %-5s %-15s %-10s %-10s%n", "Date", "ID", "Name", "Quantity", "Total Price");
+            System.out.println("----------------------------------------------------------");
+            while ((line = reader.readLine()) != null) {
+                String[] saleData = line.split("\\|");
+                System.out.printf("%-12s %-5s %-15s %-10s %-10s%n",
+                        saleData[0], saleData[1], saleData[2], saleData[3], saleData[4]);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading sales file: " + e.getMessage());
+        }
+    }
+    void checkLowStock() {
+        System.out.println("=== Low Stock Warning ===");
+        boolean hasLowStock = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(productsFile))) {
+            String line;
+            System.out.printf("%-5s %-15s %-10s %-10s %-10s%n", "ID", "Name", "Price", "Quantity", "Threshold");
+            System.out.println("----------------------------------------------------------");
+            while ((line = reader.readLine()) != null) {
+                String[] productData = line.split("\\|");
+                int quantity = Integer.parseInt(productData[3]);
+                int threshold = Integer.parseInt(productData[4]);
+
+                if (quantity <= threshold) {
+                    hasLowStock = true;
+                    System.out.printf("%-5s %-15s %-10s %-10s %-10s%n",
+                            productData[0], productData[1], productData[2], productData[3], productData[4]);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading products file: " + e.getMessage());
+            return;
+        }
+
+        if (!hasLowStock) {
+            System.out.println("All products are above their low-stock threshold.");
+        }
+    }
+
+
 
 }

@@ -10,7 +10,10 @@ public class StoreManagement {
             System.out.println("1. Manage Products");
             System.out.println("2. Check Daily Income");
             System.out.println("3. Sell Products");
-            System.out.println("4. Exit");
+            System.out.println("4. Show Products");
+            System.out.println("5. Show Sales");
+            System.out.println("6. Low Stocks");
+            System.out.println("7. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -27,6 +30,15 @@ public class StoreManagement {
                     manager.sellProduct();
                     break;
                 case 4:
+                    manager.showProducts();
+                    break;
+                case 5:
+                    manager.showSales();
+                    break;
+                case 6:
+                    manager.checkLowStock();
+                    break;
+                case 7:
                     System.out.println("Exiting...");
                     return;
                 default:
